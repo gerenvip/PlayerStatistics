@@ -103,7 +103,7 @@ public class Main {
 //        Utils.logIframeTimeIntervalCount(sequenceItemList, true);
 
         //输出非iframe 的原因
-        Utils.logNoIframeReason(sequenceItemList);
+//        Utils.logNoIframeReason(sequenceItemList);
 
         //输出各个视频来源的平均时长
 //        Utils.logResourceAverageTime(sequenceItemList, false);
@@ -186,6 +186,8 @@ public class Main {
         String isCustomIframe = null;
         String iframeReason = null;
         String closeReason = null;
+        boolean preLoad = false;
+        boolean fromFeed = false;
 
         ResourceType resourceType = null;
         PlayerType playerType = null;
@@ -204,6 +206,8 @@ public class Main {
             isCustomIframe = contentJson.optString("isCustomIframe");
             iframeReason = contentJson.optString("iframeReason");
             closeReason = contentJson.optString("closeReason");
+            preLoad = contentJson.optBoolean("preLoad");
+            fromFeed = contentJson.optBoolean("fromFeed");
 
             String resource = contentJson.optString("resource");
             resourceType = ResourceType.parseResourceType(resource);
@@ -235,6 +239,8 @@ public class Main {
                 .setDevice(device)
                 .setVideoId(videoId)
                 .setReportDate(time)
+                .setPreLoad(preLoad)
+                .setFromFeed(fromFeed)
                 .build();
     }
 

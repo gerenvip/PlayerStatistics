@@ -162,6 +162,16 @@ public class SequenceItem extends Item {
             return this;
         }
 
+        public Builder setPreLoad(boolean preLoad) {
+            this.info.preLoad = preLoad;
+            return this;
+        }
+
+        public Builder setFromFeed(boolean fromFeed) {
+            this.info.fromFeed = fromFeed;
+            return this;
+        }
+
         public SequenceItem build() {
             return new SequenceItem(this);
         }
@@ -183,6 +193,8 @@ public class SequenceItem extends Item {
         public String iframeReason;
         public String closeReason;
         public String videoId;
+        public boolean preLoad;
+        public boolean fromFeed;
 
         @Override
         public String toString() {
@@ -198,7 +210,9 @@ public class SequenceItem extends Item {
                     + "isIframe:" + isIframe + "\n"
                     + "iframeReason:" + iframeReason + "\n"
                     + "closeReason:" + closeReason + "\n"
-                    + "videoId:" + videoId + "\n";
+                    + "videoId:" + videoId + "\n"
+                    + "preLoad:" + preLoad + "\n"
+                    + "fromFeed:" + fromFeed + "\n";
         }
     }
 }
