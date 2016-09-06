@@ -1,13 +1,15 @@
 package com.gerenvip.statistics;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Arrays.sort;
 
 /**
  * Created by wangwei on 16/8/20.
@@ -16,7 +18,7 @@ public class Utils {
 
     private static final boolean sFilterExceptionTime = true;
     private static final boolean sLogFilterResult = true;
-    private static final int sFilterTime = 20000;
+    private static final int sFilterTime = 30000;
 
     private static final String LOG_RESULT_FILE_DIR = "result";
     private static final String LOG_RESULT_FILE_NAME = Main.slogFileName;
@@ -633,7 +635,7 @@ public class Utils {
                 if (item.info.isIframe && item.info.playerType == PlayerType.WEB_URL && item.info.resourceType == ResourceType.YOUTUBE) {
                     total += item.info.startPlayTime;
                     count++;
-                    log("item=" + item);
+//                    log("item=" + item);
                 }
                 if (item.info.playerType == PlayerType.WEB_URL && item.info.resourceType == ResourceType.YOUTUBE) {
                     webCount++;
@@ -650,7 +652,7 @@ public class Utils {
                 if (!item.info.isIframe && item.info.playerType == PlayerType.WEB_URL && item.info.resourceType == ResourceType.YOUTUBE) {
                     total += item.info.startPlayTime;
                     count++;
-                    log("item=" + item);
+//                    log("item=" + item);
                 }
                 if (item.info.playerType == PlayerType.WEB_URL && item.info.resourceType == ResourceType.YOUTUBE) {
                     webCount++;
@@ -679,8 +681,8 @@ public class Utils {
             if (!item.info.isIframe && item.info.resourceType == ResourceType.YOUTUBE && item.info.playerType == PlayerType.WEB_URL) {
                 count++;
                 if (!StringUtils.isEmpty(item.info.iframeReason)) {
-                    log("reason:" + item.info.iframeReason +"; videoId="+item.info.videoId);
-                    log("item="+item);
+                    log("reason:" + item.info.iframeReason + "; videoId=" + item.info.videoId);
+                    log("item=" + item);
                 } else {
                     log("reason:null");
                 }
@@ -714,9 +716,9 @@ public class Utils {
      * @param vimeoList
      */
     private static void typeItemByResourceForSQ(List<SequenceItem> list,
-                                               List<SequenceItem> youtubeList,
-                                               List<SequenceItem> facebookList,
-                                               List<SequenceItem> vimeoList) {
+                                                List<SequenceItem> youtubeList,
+                                                List<SequenceItem> facebookList,
+                                                List<SequenceItem> vimeoList) {
         if (list == null || list.size() == 0) {
             return;
         }
@@ -885,6 +887,58 @@ public class Utils {
         log(":logPlayerNetWorkAverageTime NetWork other -->Start");
         logPlayerAverageTimeForTimeSequence(otherList, false);
         log(":logPlayerNetWorkAverageTime NetWork other -->end");
+    }
+
+    /**
+     * 按照 startPlay 升续排列
+     *
+     * @param list
+     */
+    public static void logTimeAESForSQ(List<SequenceItem> list, float lastPercent) {
+        Comparator<SequenceItem> comparator = new Comparator<SequenceItem>() {
+            public int compare(SequenceItem o1, SequenceItem o2) {
+                return (int) (o1.info.startPlayTime - o2.info.startPlayTime);
+            }
+        };
+//        for (SequenceItem item : list) {
+//            log("item=" + item.info.startPlayTime);
+//        }
+        log("****************************************");
+        Collections.sort(list, comparator);
+        for (SequenceItem item : list) {
+            log("item=" + item.info.startPlayTime);
+        }
+        //输出 比例 是 lastPercent 的最大startplay时间
+        int size = list.size();
+        int index = size - 1;
+        if (lastPercent >= 1) {
+            index = size - 1;
+        } else {
+            index = (int) (size * (1 - lastPercent));
+        }
+        log("count=" + list.size() + "; index=" + index + "; last time=" + list.get(index).info.startPlayTime);
+    }
+
+    public static void logPlayerTimeAESForSQ(List<SequenceItem> list, float lastPercent) {
+
+        list = filterForTimeSequenceByTime(list, sFilterTime);
+
+        List<SequenceItem> sdkList = new ArrayList<SequenceItem>();
+        List<SequenceItem> nativeList = new ArrayList<SequenceItem>();
+        List<SequenceItem> webList = new ArrayList<SequenceItem>();
+        typeItemForSequenceByPlayerType(list, sdkList, nativeList, webList);
+
+        log("\nlogPlayerTimeAESForSQ youtube sdk--> Start");
+        logTimeAESForSQ(sdkList, lastPercent);
+        log("logPlayerTimeAESForSQ youtube sdk--> end\n");
+
+        log("\nlogPlayerTimeAESForSQ native--> Start");
+        logTimeAESForSQ(nativeList, lastPercent);
+        log("logPlayerTimeAESForSQ native--> end");
+
+        log("\nlogPlayerTimeAESForSQ web--> Start");
+        logTimeAESForSQ(webList, lastPercent);
+        log("\nlogPlayerTimeAESForSQ web--> end");
     }
 
 

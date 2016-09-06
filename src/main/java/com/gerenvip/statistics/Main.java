@@ -123,6 +123,10 @@ public class Main {
         //视频关闭原因
 //        Utils.logCloseReason(sequenceItemList);
 
+//        Utils.logTimeAESForSQ(sequenceItemList, 0.05f);
+
+        Utils.logPlayerTimeAESForSQ(sequenceItemList, 0.1f);
+
     }
 
     private static void buildItem(String line, List<LoadTimeItem> loadTimeItemList, List<SequenceItem> sequenceItemList) {
@@ -188,6 +192,7 @@ public class Main {
         String closeReason = null;
         boolean preLoad = false;
         boolean fromFeed = false;
+        String resourceId = null;
 
         ResourceType resourceType = null;
         PlayerType playerType = null;
@@ -208,6 +213,7 @@ public class Main {
             closeReason = contentJson.optString("closeReason");
             preLoad = contentJson.optBoolean("preLoad");
             fromFeed = contentJson.optBoolean("fromFeed");
+            resourceId = contentJson.optString("resourceId");
 
             String resource = contentJson.optString("resource");
             resourceType = ResourceType.parseResourceType(resource);
@@ -241,6 +247,7 @@ public class Main {
                 .setReportDate(time)
                 .setPreLoad(preLoad)
                 .setFromFeed(fromFeed)
+                .setResourceId(resourceId)
                 .build();
     }
 

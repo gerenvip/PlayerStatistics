@@ -172,6 +172,11 @@ public class SequenceItem extends Item {
             return this;
         }
 
+        public Builder setResourceId(String resourceId) {
+            this.info.resourceId = resourceId;
+            return this;
+        }
+
         public SequenceItem build() {
             return new SequenceItem(this);
         }
@@ -195,6 +200,7 @@ public class SequenceItem extends Item {
         public String videoId;
         public boolean preLoad;
         public boolean fromFeed;
+        public String resourceId;
 
         @Override
         public String toString() {
@@ -212,7 +218,8 @@ public class SequenceItem extends Item {
                     + "closeReason:" + closeReason + "\n"
                     + "videoId:" + videoId + "\n"
                     + "preLoad:" + preLoad + "\n"
-                    + "fromFeed:" + fromFeed + "\n";
+                    + "fromFeed:" + fromFeed + "\n"
+                    + "resourceId:" + resourceId + "\n";
         }
     }
 }
