@@ -32,6 +32,8 @@ public class Main {
     private static final boolean sFilterLocalIp = true;
 
     public static String slogFileName = "238";
+    public static SimpleDateFormat sTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    public static SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd");
 
     public static void main(String[] args) {
         System.out.println("main");
@@ -78,33 +80,48 @@ public class Main {
             }
         }
 
-        Utils.logAverageTimeForLoadTime(loadTimeItemList, false);
-        Utils.logAverageTimeForTimeSequence(sequenceItemList, false);
+        // 平均时长
+//        Utils.logAverageTimeForLoadTime(loadTimeItemList, false);
+//        Utils.logAverageTimeForTimeSequence(sequenceItemList, false);
 
 
-        Utils.logPlayerAverageTimeForLoadTime(loadTimeItemList, false);
-        Utils.logPlayerAverageTimeForTimeSequence(sequenceItemList, false);
+        //按播放器类型 输出平均时长
+//        Utils.logPlayerAverageTimeForLoadTime(loadTimeItemList, false);
+//        Utils.logPlayerAverageTimeForTimeSequence(sequenceItemList, false);
 
 
-        Utils.logInTimeIntervalCount(sequenceItemList,false);
-        Utils.logPlayerInTimeIntervalCount(sequenceItemList, false);
+        //输出各时间区间的比例和个数
+//        Utils.logInTimeIntervalCount(sequenceItemList,false);
 
-        Utils.logIframeAverageTime(sequenceItemList, true, true);
+        //根据播放器类型输出各个时间区间的比例和个数
+//        Utils.logPlayerInTimeIntervalCount(sequenceItemList, false);
+
+        //输出iframe 和 非iframe 的平均时长以及个数
+//        Utils.logIframeAverageTime(sequenceItemList, true, true);
+
+        //输出 iframe 和非iframe 在各时间区间的占比和个数
+//        Utils.logIframeTimeIntervalCount(sequenceItemList, true);
+
+        //输出非iframe 的原因
         Utils.logNoIframeReason(sequenceItemList);
 
-        Utils.logResourceAverageTime(sequenceItemList, false);
-        Utils.logResourcePercent(sequenceItemList);
+        //输出各个视频来源的平均时长
+//        Utils.logResourceAverageTime(sequenceItemList, false);
 
-        Utils.logPlayerResourceAverageTime(sequenceItemList);
+        //不同视频源的占比
+//        Utils.logResourcePercent(sequenceItemList);
 
-        Utils.logNetWorkAverageTime(sequenceItemList);
+        //输出各个视频源 使用各种播放器的平均时长
+//        Utils.logPlayerResourceAverageTime(sequenceItemList);
 
-        Utils.logPlayerNetWorkAverageTime(sequenceItemList);
+        //wifi, 4G other 网络下平均时长
+//        Utils.logNetWorkAverageTime(sequenceItemList);
 
-        Utils.logNoIframeReason(sequenceItemList);
-        Utils.logIframeAverageTime(sequenceItemList, false, true);
-        Utils.logPlayerInTimeIntervalCount(sequenceItemList, false);
-        Utils.logIframeTimeIntervalCount(sequenceItemList, true);
+        //各种播放器下 不同网络环境的平均时长
+//        Utils.logPlayerNetWorkAverageTime(sequenceItemList);
+
+        //视频关闭原因
+//        Utils.logCloseReason(sequenceItemList);
 
     }
 
@@ -149,6 +166,14 @@ public class Main {
         String user = jsonObject.optString("user");
         String network = jsonObject.optString("network");
         String ip = jsonObject.optString("ip");
+        String device = jsonObject.optString("device");
+        boolean debug = jsonObject.optBoolean("debug", false);
+        String packageName = jsonObject.optString("packageName");
+        long timestamp = jsonObject.optLong("timestamp");
+        String time = sTimeFormat.format(new Date(timestamp));
+        String videoJsonString = jsonObject.optString("result");
+        JSONObject videoJson = new JSONObject(videoJsonString);
+        String videoId = videoJson.optString("item");
         String content = jsonObject.optString("content");
         JSONObject contentJson = convertToJson(content);
         String facebookResponse = null;
@@ -205,6 +230,11 @@ public class Main {
                 .setIsIframe(StringUtils.equals("true", isCustomIframe))
                 .setIframeReason(iframeReason)
                 .setCloseReason(closeReason)
+                .setDebug(debug)
+                .setPkg(packageName)
+                .setDevice(device)
+                .setVideoId(videoId)
+                .setReportDate(time)
                 .build();
     }
 
@@ -266,8 +296,7 @@ public class Main {
         } catch (Exception e) {
         }
         if (date == null) {
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-            date = format.format(new Date(System.currentTimeMillis()));
+            date = sDateFormat.format(new Date(System.currentTimeMillis()));
         }
 
 

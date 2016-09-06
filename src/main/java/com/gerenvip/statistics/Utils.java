@@ -23,7 +23,7 @@ public class Utils {
 
     private static final boolean sDmpToSD = true;
 
-    public static String getLogFileName() {
+    private static String getLogFileName() {
         return Main.slogFileName;
     }
 
@@ -95,7 +95,7 @@ public class Utils {
      * @param filterTime 定义的异常时间上限
      * @return
      */
-    public static List<LoadTimeItem> filterForLoadTimeByTime(List<LoadTimeItem> list, int filterTime) {
+    private static List<LoadTimeItem> filterForLoadTimeByTime(List<LoadTimeItem> list, int filterTime) {
         if (!sFilterExceptionTime) {
             return list;
         }
@@ -129,7 +129,7 @@ public class Utils {
      * @param filterTime
      * @return
      */
-    public static List<SequenceItem> filterForTimeSequenceByTime(List<SequenceItem> list, int filterTime) {
+    private static List<SequenceItem> filterForTimeSequenceByTime(List<SequenceItem> list, int filterTime) {
         if (!sFilterExceptionTime) {
             return list;
         }
@@ -290,6 +290,65 @@ public class Utils {
     }
 
     /**
+     * 使用 TimeSequence 数据统计平均加载时长(不分播放器类型)
+     *
+     * @param sequenceItemList
+     * @param byDay            是否按天输出
+     */
+    public static void logAverageTimeForTimeSequence(List<SequenceItem> sequenceItemList, boolean byDay) {
+        if (sequenceItemList == null || sequenceItemList.size() == 0) {
+            return;
+        }
+        sequenceItemList = filterForTimeSequenceByTime(sequenceItemList, sFilterTime);
+        if (sequenceItemList == null || sequenceItemList.size() == 0) {
+            return;
+        }
+        if (byDay) {
+            int preDate = -1;
+            int daySize = 0;
+            int total = 0;
+            for (SequenceItem sequenceItem : sequenceItemList) {
+                String date = sequenceItem.date;
+                int dateInt = Integer.parseInt(date);
+                if (preDate == -1) {
+                    preDate = dateInt;
+                }
+                if (dateInt > preDate) {
+
+                    if (daySize > 0) {
+                        int r = total / daySize;
+                        log("** " + preDate + ":" + r);
+                    } else {
+                        log("AverageTimeForTimeSequence error --> daySize=0");
+                    }
+                    preDate = dateInt;
+                    total = (int) sequenceItem.info.startPlayTime;
+                    daySize = 1;
+                } else if (dateInt == preDate) {
+                    total += sequenceItem.info.startPlayTime;
+                    daySize++;
+                } else {
+                    log("error ---> error 0");
+                }
+            }
+            if (daySize > 0) {
+                int r = total / daySize;
+                log("** " + preDate + ":" + r);
+            } else {
+                log("AverageTimeForTimeSequence ---> 2 daySize=0");
+            }
+        } else {
+            int size = sequenceItemList.size();
+            int total = 0;
+            for (SequenceItem sequenceItem : sequenceItemList) {
+                total += sequenceItem.info.startPlayTime;
+            }
+            int result = total / size;
+            log("** AverageTimeForTimeSequence:" + result);
+        }
+    }
+
+    /**
      * 使用Loadtime 数据统计 youtube播放器, native 播放器,web 播放器的平均加载时长
      *
      * @param loadTimeItemList
@@ -347,65 +406,6 @@ public class Utils {
                 }
                 log("** LoadTime web player AverageTime:" + (total / size));
             }
-        }
-    }
-
-    /**
-     * 使用 TimeSequence 数据统计平均加载时长(不分播放器类型)
-     *
-     * @param sequenceItemList
-     * @param byDay            是否按天输出
-     */
-    public static void logAverageTimeForTimeSequence(List<SequenceItem> sequenceItemList, boolean byDay) {
-        if (sequenceItemList == null || sequenceItemList.size() == 0) {
-            return;
-        }
-        sequenceItemList = filterForTimeSequenceByTime(sequenceItemList, sFilterTime);
-        if (sequenceItemList == null || sequenceItemList.size() == 0) {
-            return;
-        }
-        if (byDay) {
-            int preDate = -1;
-            int daySize = 0;
-            int total = 0;
-            for (SequenceItem sequenceItem : sequenceItemList) {
-                String date = sequenceItem.date;
-                int dateInt = Integer.parseInt(date);
-                if (preDate == -1) {
-                    preDate = dateInt;
-                }
-                if (dateInt > preDate) {
-
-                    if (daySize > 0) {
-                        int r = total / daySize;
-                        log("** " + preDate + ":" + r);
-                    } else {
-                        log("AverageTimeForTimeSequence error --> daySize=0");
-                    }
-                    preDate = dateInt;
-                    total = (int) sequenceItem.info.startPlayTime;
-                    daySize = 1;
-                } else if (dateInt == preDate) {
-                    total += sequenceItem.info.startPlayTime;
-                    daySize++;
-                } else {
-                    log("error ---> error 0");
-                }
-            }
-            if (daySize > 0) {
-                int r = total / daySize;
-                log("** " + preDate + ":" + r);
-            } else {
-                log("AverageTimeForTimeSequence ---> 2 daySize=0");
-            }
-        } else {
-            int size = sequenceItemList.size();
-            int total = 0;
-            for (SequenceItem sequenceItem : sequenceItemList) {
-                total += sequenceItem.info.startPlayTime;
-            }
-            int result = total / size;
-            log("** AverageTimeForTimeSequence:" + result);
         }
     }
 
@@ -468,6 +468,7 @@ public class Utils {
             }
         }
     }
+
 
     /**
      * 根据日期 输出 0-1, 1-3, 3-5, 5-10, 10 ~ 各时间段个数和百分比
@@ -678,7 +679,10 @@ public class Utils {
             if (!item.info.isIframe && item.info.resourceType == ResourceType.YOUTUBE && item.info.playerType == PlayerType.WEB_URL) {
                 count++;
                 if (!StringUtils.isEmpty(item.info.iframeReason)) {
-                    log("reason:" + item.info.iframeReason);
+                    log("reason:" + item.info.iframeReason +"; videoId="+item.info.videoId);
+                    log("item="+item);
+                } else {
+                    log("reason:null");
                 }
             }
         }
@@ -709,7 +713,7 @@ public class Utils {
      * @param facebookList
      * @param vimeoList
      */
-    public static void typeItemByResourceForSQ(List<SequenceItem> list,
+    private static void typeItemByResourceForSQ(List<SequenceItem> list,
                                                List<SequenceItem> youtubeList,
                                                List<SequenceItem> facebookList,
                                                List<SequenceItem> vimeoList) {
@@ -808,7 +812,7 @@ public class Utils {
         log(":vimeo video player average time --> end");
     }
 
-    public static void typeNetWork(List<SequenceItem> list, List<SequenceItem> wifiList, List<SequenceItem> _4Glist, List<SequenceItem> otherList) {
+    private static void typeNetWork(List<SequenceItem> list, List<SequenceItem> wifiList, List<SequenceItem> _4Glist, List<SequenceItem> otherList) {
         if (list == null || list.size() == 0) {
             return;
         }

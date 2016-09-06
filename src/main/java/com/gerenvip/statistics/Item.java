@@ -12,4 +12,5 @@ public class Item {
     public boolean debug;
     public String device;
     public String pkg;
+    public String reportDate;
 }

@@ -14,16 +14,24 @@ public class SequenceItem extends Item {
         this.info = builder.info;
         this.ip = builder.ip;
         this.netWork = builder.netWork;
+        this.debug = builder.debug;
+        this.device = builder.device;
+        this.pkg = builder.pkg;
+        this.reportDate = builder.reportDate;
     }
 
     @Override
     public String toString() {
-        return "date:" + date + "\n"
+        return "{\ndate:" + date + "\n"
                 + "userId:" + userId + "\n"
                 + "version:" + version + "\n"
                 + "ip:" + ip + "\n"
                 + "netWork:" + netWork + "\n"
-                + "info:[" + info + "]\n";
+                + "debug:" + debug + "\n"
+                + "device:" + device + "\n"
+                + "pkg:" + pkg + "\n"
+                + "time:" + reportDate + "\n"
+                + "info:[" + info + "]}\n";
     }
 
     public static class Builder {
@@ -35,6 +43,10 @@ public class SequenceItem extends Item {
         private String userId;
         private String ip;
         private String netWork;
+        private boolean debug;
+        private String device;
+        private String pkg;
+        private String reportDate;
 
         public Builder() {
             info = new SequenceInfo();
@@ -127,6 +139,26 @@ public class SequenceItem extends Item {
 
         public Builder setVideoId(String videoId) {
             info.videoId = videoId;
+            return this;
+        }
+
+        public Builder setDebug(boolean debug) {
+            this.debug = debug;
+            return this;
+        }
+
+        public Builder setDevice(String device) {
+            this.device = device;
+            return this;
+        }
+
+        public Builder setPkg(String pkg) {
+            this.pkg = pkg;
+            return this;
+        }
+
+        public Builder setReportDate(String reportDate) {
+            this.reportDate = reportDate;
             return this;
         }
 
